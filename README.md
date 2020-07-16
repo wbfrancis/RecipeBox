@@ -46,10 +46,16 @@ As long as you have some sort of Live Server functionality (such as is found in 
 Currently there are two users with different roles
 
 Chef (can post and edit recipes)
+
     email: g@me.com
+
     password: !mn0ttheb0ss
+
+
 Admin (can post, edit, delete recipes, can post recipe collections)
+
     email: l@boss.org
+
     password: !mtheb0ss
 
 
