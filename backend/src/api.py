@@ -2,21 +2,33 @@ import os
 from flask import Flask, request, jsonify, abort, render_template, Response, flash, redirect, url_for
 from sqlalchemy import exc
 import json
-from flask_cors import CORS
-
+from flask_cors import CORS, cross_origin
 from .database.models import db_drop_and_create_all, setup_db, Recipe, RecipeCollection
 from .auth.auth import AuthError, requires_auth
+import ast
 
+
+
+# def create_app(test_config=None):
 app = Flask(__name__)
 setup_db(app)
-CORS(app)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
+# logging.getLogger('flask_cors').level = logging.DEBUG
 
 # db_drop_and_create_all()
 # ENDPOINTS FOR RECIPES
 # #####################
 
+@app.after_request
+def creds(response):
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response
+
 
 @app.route('/recipes')
+@cross_origin()
 def get_all_recipes():
     try:
         selection = Recipe.query.all()
@@ -28,10 +40,12 @@ def get_all_recipes():
             "recipes": recipes
         })
     except Exception as e:
+        print (e)
         return not_found(e)
 
 
 @app.route('/recipes/<id>')
+@cross_origin()
 def get_recipe(id):
     try:
         selection = Recipe.query.get(id)
@@ -46,17 +60,19 @@ def get_recipe(id):
 
 
 @app.route('/recipes', methods=['POST'])
+@cross_origin()
 @requires_auth('post:recipes')
 def post_new_recipe(token):
     try:
-        data_json = request.get_json()
-        if not ("title" in data_json and 
-        "ingredients" in data_json and
-        "instructions" in data_json):
+        data = ast.literal_eval(request.data.decode("UTF-8"))
+        if not ("title" in data and 
+        "ingredients" in data and
+        "instructions" in data):
             bad_request(Exception('bad request'))
-        new_title = data_json["title"]
-        new_ingredients = data_json["ingredients"]
-        new_instructions = data_json["instructions"]
+        new_title = data["title"]
+        new_ingredients = [i for i in data["ingredients"].split('\r\n') if i]
+        new_instructions = [i for i in data["instructions"].split('\r\n') if i]
+        # print(repr(new_ingredients.split('\r\n')))
         new_recipe = Recipe(title=new_title, ingredients=new_ingredients, instructions=new_instructions)
         new_recipe.insert()
         return jsonify({
@@ -64,6 +80,7 @@ def post_new_recipe(token):
             "recipes": [new_recipe.format()]
             })
     except Exception as e:
+        # print(e)
         return unprocessable(e)
 
 @app.route('/recipes/<id>', methods=['PATCH'])
@@ -74,23 +91,26 @@ def update_recipe(token, id):
         return not_found(Exception('not found'))
 
     try:
-        body = request.get_json()
-        for key, val in body.items():
-            print('FILL OUT FILL OUT FILL OUT')
-            # if key == 'title':
-            #     drink.title = val
-            # elif key == 'recipe':
-            #     drink.recipe = json.dumps(val)
-            # else:
-            #     raise Exception(
-            #         'You\'re trying to update a value that doesn\'t exist')
+        print(request)
+        data = ast.literal_eval(request.data.decode("UTF-8"))
+        print(data)
+        for key, val in data.items():
+            if key == 'title':
+                recipe.title = val
+            if key == 'ingredients':
+                recipe.ingredients = [i for i in val.split('\r\n') if i]
+            if key == 'instructions':
+                recipe.instructions = [i for i in val.split('\r\n') if i]
+            
         recipe.update()
+        print(recipe.format())
 
         return jsonify({
             "success": True,
             "recipes": [recipe.format()]
         })
     except Exception as e:
+        print(e)
         return unprocessable(e)
 
 @app.route('/recipes/<id>', methods=['DELETE'])
@@ -114,6 +134,7 @@ def delete_recipe(token, id):
 # ################################
 
 @app.route('/recipe-collections')
+@cross_origin()
 def get_all_recipe_collections():
     try:
         selection = RecipeCollection.query.all()
@@ -125,48 +146,66 @@ def get_all_recipe_collections():
             "recipe_collections": collections
         })
     except Exception as e:
+        print(e)
         return not_found(e)
 
-@app.route('/recipe-collections/<id>')
-def get_recipe_collection(id):
-    try:
-        selection = RecipeCollection.query.get(id)
-        if (selection is None):
-            raise Exception('recipe collection with id ' + id + 'not found')
-        return jsonify({
-            "success": True,
-            "recipe_collections": selection.format()
-        })
-    except Exception as e:
-        return not_found(e)
+# @app.route('/recipe-collections/<id>')
+# def get_recipe_collection(id):
+#     try:
+#         selection = RecipeCollection.query.get(id)
+#         if (selection is None):
+#             raise Exception('recipe collection with id ' + id + 'not found')
+#         return jsonify({
+#             "success": True,
+#             "recipe_collections": selection.format()
+#         })
+#     except Exception as e:
+#         return not_found(e)
 
 @app.route('/recipe-collections', methods=['POST'])
+@cross_origin()
 @requires_auth('post:recipe-collections')
 def post_new_recipe_collection(token):
-    pass
-
-@app.route('/recipe-collections/<id>', methods=['PATCH'])
-@requires_auth('patch:recipe-collections')
-def update_recipe_collection(token, id):
-    pass
-
-@app.route('/recipe-collections/<id>', methods=['DELETE'])
-@requires_auth('delete:recipe-collections')
-def delete_recipe_collection(token, id):
-    collection = RecipeCollection.query.get(id)
-    if collection is None:
-        return not_found(Exception("id doesn't exist"))
-
     try:
-        collection.delete()
+        data = ast.literal_eval(request.data.decode("UTF-8"))
+        if not ("title" in data and 
+        "description" in data and
+        "recipes" in data):
+            bad_request(Exception('bad request'))
+        new_title = data["title"]
+        new_description = data["description"]
+        new_recipes = [i for i in data["recipes"].split(',') if i]
+        new_collection = RecipeCollection(title=new_title, description=new_description)
+        new_collection.insert()
+
+        for recipe_id in new_recipes:
+            recipe = Recipe.query.get(recipe_id)
+            recipe.recipe_collection_id = new_collection.id
+            recipe.update()
+
         return jsonify({
-            "success": True,
-            "deleted": id
-        })
+            "success": True, 
+            "recipe_collections": [new_collection.format()]
+            })
     except Exception as e:
+        print(e)
         return unprocessable(e)
 
+# @app.route('/recipe-collections/<id>', methods=['DELETE'])
+# @requires_auth('delete:recipe-collections')
+# def delete_recipe_collection(token, id):
+#     collection = RecipeCollection.query.get(id)
+#     if collection is None:
+#         return not_found(Exception("id doesn't exist"))
 
+#     try:
+#         collection.delete()
+#         return jsonify({
+#             "success": True,
+#             "deleted": id
+#         })
+#     except Exception as e:
+#         return unprocessable(e)
 
 
 @app.errorhandler(422)
@@ -198,6 +237,7 @@ def bad_request(error):
 
 @app.errorhandler(AuthError)
 def auth_error(ex):
+    print(ex)
     return jsonify({
         "success": False,
         "error": ex.status_code,

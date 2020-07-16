@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>RecipeBox</title>
+    <title>RecipeBox | New Recipe</title>
     <link rel="icon" href="./public/cookfavi.png" />
     <script
   src="https://code.jquery.com/jquery-3.5.1.js"
@@ -11,7 +11,8 @@
   crossorigin="anonymous"></script>
     <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js'></script>
     <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js'></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
+    
     <script src="https://cdn.auth0.com/js/auth0/9.11/auth0.min.js"></script>
     <script type="text/javascript">
         var webAuth = new auth0.WebAuth({
@@ -25,11 +26,10 @@
 
       </script>
     <script src="./auth.js"></script>
-    <script src="./jwt-decode.min.js"></script>
 
    <link rel="stylesheet" href="navbar.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="new-recipe.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     
@@ -72,36 +72,87 @@
             </div>
         </div>
     </nav>
-    <div class="center">
-        <h1>Welcome to Recipe Box</h1>
-        <br><br>
-        <img src='./public/cookbook.png' width='15%'>
-        <br><br>
-        <div class="btn btn-warning"><a href="new-recipe.html" onclick="handleNewRecipeAuth()" class='redirectButtonAnchor'>Post a New Recipe</a></div>
-        <br><br>
-        <!-- <div class="btn btn-light"><a href="new-collection.html" class='redirectButtonAnchor'>Create a Recipe Collection</a></div> -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-2">
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                
+                <div class="card-body">
+                    <h3 style='text-align: center;' class="card-title">New Recipe</h3>
+                    <form id='recipeForm' class='needs-validation'>
+                        <div class="form-group">
+                            <label for="title">Recipe Title</label>
+                            <input required type="text" class="form-control" name="title" id="title" placeholder="Make it sound delicious!">
+                          </div>
+                        <div class="form-group">
+                            <label for="ingredients">Ingredients</label>
+                            <textarea required class="form-control" name="ingredients" name="id" rows="5" placeholder="Place every ingredient on a new line"></textarea>
+                          </div>
+                          <div class="form-group">
+                            <label for="instructions">Instructions</label>
+                            <textarea required class="form-control" name="instructions" id="instructions"  rows="5" placeholder="Paragraphs will be maintained if inserted"></textarea>
+                          </div>
+                          <button type="submit" class="btn btn-primary mb-2">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        </div>
+        
     </div>
     
     <script>
-        $( document ).ready(()=>{
-            function getUrlVars() {
-            var vars = {};
-            var parts = window.location.href.replace(/[?#&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-                vars[key] = value;
+        $(document).ready(function(){
+            $("#recipeForm").submit(event=>{
+                event.preventDefault();
+                let data = {}
+                $( "#recipeForm" ).serializeArray().forEach(e=>{
+                    console.log(e)
+                    data[e.name] = e.value
+                })
+
+                if (localStorage.token){
+                    let token = "Bearer " + localStorage.token
+                    let result = $.ajax({
+                    url: 'http://127.0.0.1:5000/recipes', //TODO: update request URL
+                    type: "POST",
+                    dataType: 'json',
+                    contentType: 'text/plain',
+                    data: JSON.stringify(data),
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    headers: {
+                    'Authorization': token
+                    },
+                    crossDomain: true,
+                    success: (result) => {
+                        console.log("successful submit!")
+                        alert('New Recipe successfully added!')
+                        document.getElementById("recipeForm").reset();
+                        return;
+                    },
+                    error: (error) => {
+                        
+                        alert('Unable to submit recipe. Please try again')
+                        return;
+                    }
+                    })
+                } else {
+                    alert('Please log in')
+                }
             });
-            return vars;
-            }
-            let params = getUrlVars()
-            if (params.access_token) {
-                localStorage.setItem('token', params.access_token)
-            }
+            $(document).on("keydown", ":input:not(textarea)", function(event) {
+                return event.key != "Enter";
+        });
 
         if (localStorage.token){
-            
             getUser().then(user=>{
             document.getElementById('accountHeader').innerHTML = "Welcome " + user.nickname + '!'
             document.getElementsByClassName('login')[0].style.display = 'none'
-            })
+        })
         } else {
             document.getElementById('accountHeader').innerHTML = "Please Log In"
             document.getElementsByClassName('logout')[0].style.display = 'none'
@@ -115,16 +166,8 @@
         $('.login').click(()=>{
             login(webAuth)
         });
-        })
-
-        function handleNewRecipeAuth(){
-            event.preventDefault()
-            if (localStorage.token){
-                window.location.href = 'new-recipe.html'
-            } else {
-                alert('You must log in (on the top right of the page) before posting new recipes')
-            }
-        }
+        
+});
         
     </script>
 </body>

@@ -37,7 +37,7 @@ RECIPE
 a persistent recipe entity, extends the base SQLAlchemy Model
 '''
 class Recipe(db.Model):
-    __tablename__ = 'recipes'
+    __tablename__ = 'recipe'
     id = Column(Integer, primary_key=True)
     # title of recipe
     title = Column(String((300)), unique=True)
@@ -48,14 +48,16 @@ class Recipe(db.Model):
     # array of strings where each element is a new paragraph of instructions
     instructions = Column(postgresql.ARRAY(String))
 
-    recipe_collection_id = db.Column(db.Integer, db.ForeignKey('recipe_collections.id'), nullable=True)
+    recipe_collection = db.relationship("RecipeCollection", back_populates="recipe")
+    recipe_collection_id = db.Column(db.Integer, db.ForeignKey('recipe_collection.id'), nullable=True)
 
     def format(self):
         return {
             'id': self.id,
             'title': self.title,
             'ingredients': self.ingredients,
-            'instructions': self.instructions
+            'instructions': self.instructions,
+            'recipe_collection_id': self.recipe_collection_id
         }
 
     def insert(self):
@@ -78,21 +80,30 @@ RECIPE
 a persistent recipe entity, extends the base SQLAlchemy Model
 '''
 class RecipeCollection(db.Model):
-    __tablename__ = 'recipe_collections'
+    __tablename__ = 'recipe_collection'
     id = Column(Integer, primary_key=True)
     
     # title of recipe
-    title = Column(String((300)), unique=True)
+    title = Column(String(300), unique=True)
+
+    description = Column(String, unique=True)
 
     # one to many association table of collection -> recipes
-    recipes = db.relationship('Recipe', backref='recipe_collection', lazy=True, cascade = "all, delete, delete-orphan")
+    recipe = db.relationship('Recipe', back_populates='recipe_collection', lazy=True, cascade = "all, delete, delete-orphan")
 
     def format(self):
         return {
             'id': self.id,
             'title': self.title,
-            'recipes': self.recipes,
+            'description': self.description,
+            'recipes': self.get_formatted_recipes(),
         }
+
+    def get_formatted_recipes(self):
+        arr = []
+        for r in self.recipe:
+            arr.append(r.format())
+        return arr
 
     def insert(self):
         db.session.add(self)

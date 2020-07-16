@@ -25,11 +25,10 @@
 
       </script>
     <script src="./auth.js"></script>
-    <script src="./jwt-decode.min.js"></script>
 
    <link rel="stylesheet" href="navbar.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="recipe-list.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     
@@ -72,36 +71,57 @@
             </div>
         </div>
     </nav>
-    <div class="center">
-        <h1>Welcome to Recipe Box</h1>
-        <br><br>
-        <img src='./public/cookbook.png' width='15%'>
-        <br><br>
-        <div class="btn btn-warning"><a href="new-recipe.html" onclick="handleNewRecipeAuth()" class='redirectButtonAnchor'>Post a New Recipe</a></div>
-        <br><br>
-        <!-- <div class="btn btn-light"><a href="new-collection.html" class='redirectButtonAnchor'>Create a Recipe Collection</a></div> -->
+    <div class="container">
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-6">
+              <ul id='list' class='list-group'>
+              </ul>   
+            </div>
+        </div>
     </div>
     
     <script>
-        $( document ).ready(()=>{
-            function getUrlVars() {
-            var vars = {};
-            var parts = window.location.href.replace(/[?#&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-                vars[key] = value;
-            });
-            return vars;
-            }
-            let params = getUrlVars()
-            if (params.access_token) {
-                localStorage.setItem('token', params.access_token)
-            }
+        function getRecipes(){
+            return $.ajax({
+                url: 'http://127.0.0.1:5000/recipes',
+                type: "GET",
+                dataType: 'json',
+                xhrFields: {
+                            withCredentials: true
+                        },
+                crossDomain: true,
+                success: (response) => {
+                    return response
+                },
+                error: (error) => {
+                    alert('Unable to load recipe collections. Please refresh page')
+                    console.log(error)
+                    return;
+                }
+            })
+        }
+
+        getRecipes().then((response)=>{
+            ul = document.getElementById('list')
+            response.recipes.forEach((recipe)=>{
+                let li = document.createElement('li')
+                li.className = 'list-group-item'
+                li.innerHTML = recipe.title
+                li.onclick = ()=>{goToRecipe(recipe.id)}
+                ul.appendChild(li)
+            })
+        })
+
+        function goToRecipe(id){
+            window.location.href = 'recipe.html?id='+id
+        }
 
         if (localStorage.token){
-            
             getUser().then(user=>{
             document.getElementById('accountHeader').innerHTML = "Welcome " + user.nickname + '!'
             document.getElementsByClassName('login')[0].style.display = 'none'
-            })
+        })
         } else {
             document.getElementById('accountHeader').innerHTML = "Please Log In"
             document.getElementsByClassName('logout')[0].style.display = 'none'
@@ -115,17 +135,7 @@
         $('.login').click(()=>{
             login(webAuth)
         });
-        })
 
-        function handleNewRecipeAuth(){
-            event.preventDefault()
-            if (localStorage.token){
-                window.location.href = 'new-recipe.html'
-            } else {
-                alert('You must log in (on the top right of the page) before posting new recipes')
-            }
-        }
-        
     </script>
 </body>
 </html>
