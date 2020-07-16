@@ -63,19 +63,136 @@ Admin (can post, edit, delete recipes, can post recipe collections)
 
 There are two models for this app. The first is Recipe, which contains a title, an array of ingredients, and an array of instructions, as well as a foreign key if the recipe belongs to a Recipe Collection. The next, Recipe Collection, contains a title, a description, and an array of recipes that are associated with it.
 
+To set up your own database you will need to change the database info in src/database/models.py
 
 ## API Documentation
 
 GET (/recipes)
+- Fetches a list of all recipes
+- Request Arguments: None
+- Returns: 
 
-GET (/recipes/:id)
+{
+    success: True,
+    recipes: []
+}
+
+
+GET (/recipes?id=XXX)
+- Fetches a recipes
+- Request Arguments: the given recipe id
+- Returns: list with a single element
+
+{
+    success: True,
+    recipes: {
+            'id': self.id,
+            'title': self.title,
+            'ingredients': self.ingredients,
+            'instructions': self.instructions,
+            'recipe_collection_id': self.recipe_collection_id
+        }
+}
 
 POST (/recipes)
+- Posts a new recipe
+- Request Arguments: json text/data object in this format
+{
+    title: X,
+    ingredients: X,
+    instructions: X,
+}       
+
+- Returns: the new recipe
+
+{
+    success: True,
+    recipes: {
+            'id': self.id,
+            'title': self.title,
+            'ingredients': self.ingredients,
+            'instructions': self.instructions,
+            'recipe_collection_id': self.recipe_collection_id
+        }
+}
 
 PATCH (/recipes)
+- Edits a recipe
+- Request Arguments: json text/data object in this format
+{
+    title: (if any),
+    ingredients: (if any),
+    instructions: (if any),
+}       
 
-DELETE (/recipes)
+- Returns: the edited recipe
+
+{
+    success: True,
+    recipes: {
+            'id': self.id,
+            'title': self.title,
+            'ingredients': self.ingredients,
+            'instructions': self.instructions,
+            'recipe_collection_id': self.recipe_collection_id
+        }
+}
+
+DELETE (/recipes?id=XXX)
+- Deletes a recipe
+- Request Arguments: id, see above
+- Returns: the deleted recipe
+
+{
+    success: True,
+    recipes: {
+            'id': self.id,
+            'title': self.title,
+            'ingredients': self.ingredients,
+            'instructions': self.instructions,
+            'recipe_collection_id': self.recipe_collection_id
+        }
+}
+
 
 GET (/recipe-collections)
+- Gets all recipe collections
+- Request Arguments: id, see above
+- Returns: the deleted recipe
+
+{
+    success: True,
+    recipe_collections: {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'recipes': [
+                {
+                'id': self.id,
+                'title': self.title,
+                'ingredients': self.ingredients,
+                'instructions': self.instructions,
+                'recipe_collection_id': self.recipe_collection_id
+                },  
+            etc
+            ],
+    }
+
+}
+
 
 POST (/recipe-collections)
+- Posts a new recipe collection
+- Request Arguments: json text/data object in this format
+{
+    title: X,
+    description: X,
+    recipes: '14,12,13',
+}       
+
+- Returns: the new recipe collection
+
+{
+    success: True,
+    recipes_collections: XXX
+}
