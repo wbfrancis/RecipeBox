@@ -1,12 +1,12 @@
 # RecipeBox
 
-I wanted to make this as a simple, no frills recipe app for my family. Eventually I want to implement group recipe sharing and version editing in order to really make it feel like a family cookbook.
+I wanted to make this as a simple, no frills cooking recipe app for my family. Eventually I want to implement group recipe sharing and version editing in order to really make it feel like a family cookbook.
 
 ## Setting Things Up
 
-### Setting Up the Virtual Environment
+This is assuming you already have Python 3.7+ installed
 
-This is assuming you already have Python3.7+ installed
+### The Virtual Environment
 
 First, navigate to src, then in the terminal:
 
@@ -41,4 +41,35 @@ And it should start up in development mode.
 As long as you have some sort of Live Server functionality (such as is found in VSCode or etc) you should just need to throw up any of the htmls within the frontend directory.
 
 
+## RBAC and Login Info
+
+Currently there are two users with different roles
+
+Chef (can post and edit recipes)
+    email: g@me.com
+    password: !mn0ttheb0ss
+Admin (can post, edit, delete recipes, can post recipe collections)
+    email: l@boss.org
+    password: !mtheb0ss
+
+
+## Models
+
+There are two models for this app. The first is Recipe, which contains a title, an array of ingredients, and an array of instructions, as well as a foreign key if the recipe belongs to a Recipe Collection. The next, Recipe Collection, contains a title, a description, and an array of recipes that are associated with it.
+
+
 ## API Documentation
+
+GET (/recipes)
+
+GET (/recipes/:id)
+
+POST (/recipes)
+
+PATCH (/recipes)
+
+DELETE (/recipes)
+
+GET (/recipe-collections)
+
+POST (/recipe-collections)
