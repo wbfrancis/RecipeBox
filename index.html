@@ -97,7 +97,7 @@
             }
 
         if (localStorage.token){
-            
+            console.log('user token:',localStorage.token)
             getUser().then(user=>{
             document.getElementById('accountHeader').innerHTML = "Welcome " + user.nickname + '!'
             document.getElementsByClassName('login')[0].style.display = 'none'
