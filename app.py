@@ -29,6 +29,10 @@ def create_app(test_config=None):
         response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS')
         return response
 
+    @app.route('/')
+    def index():
+        render_template('frontend/index.html') 
+
 
     @app.route('/recipes')
     @cross_origin()
@@ -245,3 +249,5 @@ def create_app(test_config=None):
         }), ex.status_code
 
     return app
+
+app = create_app()
