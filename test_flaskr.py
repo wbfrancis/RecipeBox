@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import json
 from flask_sqlalchemy import SQLAlchemy
 
-from api import create_app
+from app import create_app
 from models import setup_db, Recipe, RecipeCollection
 
 
