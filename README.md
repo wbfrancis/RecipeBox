@@ -180,8 +180,8 @@ GET (/recipe-collections)
 
 }
 
-
 POST (/recipe-collections)
+_ *Not navigable to on the frontend. Found at /new-collection.html*
 - Posts a new recipe collection
 - Request Arguments: json text/data object in this format
 {

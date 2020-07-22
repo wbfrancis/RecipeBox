@@ -5,9 +5,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import json
 
+database_path = os.getenv("DATABASE URL")
 
-database_name = "recipebox"
-database_path = 'postgres://williamfrancis@localhost:5432/recipebox'
+
+# database_name = "recipebox"
+# database_path = 'postgres://williamfrancis@localhost:5432/recipebox'
 # database_path = "postgres://{}/{}".format('localhost:5432', database_name)
 db = SQLAlchemy()
 
@@ -20,8 +22,7 @@ def setup_db(app, database_path):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
-    migrate = Migrate(app, db)
-    db_drop_and_create_all()
+    db.create_all()
     
 
 '''

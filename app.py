@@ -17,7 +17,9 @@ database_path = 'postgres://{}@localhost:5432/recipebox'.format(username)
 def create_app(test_config=None):
     app = Flask(__name__)
     setup_db(app, database_path)
-    cors = CORS(app)
+    cors = CORS(app, resources={r"/*": {"origins": "*"}})
+    app.config['CORS_HEADERS'] = 'Content-Type'
+    # cors = CORS(app, supports_credentials=True)
     
 
     # ENDPOINTS FOR RECIPES
@@ -25,11 +27,13 @@ def create_app(test_config=None):
 
     @app.after_request
     def creds(response):
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS')
         return response
 
     @app.route('/')
+    @cross_origin()
     def index():
         render_template('frontend/index.html') 
 
@@ -40,6 +44,8 @@ def create_app(test_config=None):
         try:
             selection = Recipe.query.all()
             recipes = []
+            if (len(recipes) == 0):
+                Exception('no entries in database')
             for e in selection:
                 recipes.append(e.format())
             return jsonify({
@@ -47,7 +53,6 @@ def create_app(test_config=None):
                 "recipes": recipes
             })
         except Exception as e:
-            # print (e)
             return not_found(e)
 
 
@@ -70,6 +75,7 @@ def create_app(test_config=None):
     @cross_origin()
     @requires_auth('post:recipes')
     def post_new_recipe(token):
+        print('3')
         try:
             data = ast.literal_eval(request.data.decode("UTF-8"))
             if not ("title" in data and 
