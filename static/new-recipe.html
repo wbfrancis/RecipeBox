@@ -116,7 +116,7 @@
                 if (localStorage.token){
                     let token = "Bearer " + localStorage.token
                     let result = $.ajax({
-                    url: '/recipes', //TODO: update request URL
+                    url: 'https://recipebox-willbfrancis.herokuapp.com/recipes', //TODO: update request URL
                     type: "POST",
                     dataType: 'json',
                     contentType: 'text/plain',
