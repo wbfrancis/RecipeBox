@@ -11,8 +11,9 @@ import ast
 database_name = "recipebox"
 # TODO: change to your local username
 username = 'williamfrancis'
+database_path = os.getenv("DATABASE URL")
 
-database_path = 'postgres://{}@localhost:5432/recipebox'.format(username)
+# database_path = 'postgres://{}@localhost:5432/recipebox'.format(username)
 
 def create_app(test_config=None):
     app = Flask(__name__)
