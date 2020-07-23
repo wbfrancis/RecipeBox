@@ -36,7 +36,7 @@ def create_app(test_config=None):
     @app.route('/')
     @cross_origin()
     def index():
-        render_template('index.html') 
+        return render_template('index.html') 
 
     @app.route('/recipes')
     @cross_origin()
