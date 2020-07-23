@@ -11,7 +11,7 @@ import ast
 database_name = "recipebox"
 # TODO: change to your local username
 username = 'williamfrancis'
-database_path = os.getenv("DATABASE URL")
+database_path = os.getenv("DATABASE_URL")
 
 # database_path = 'postgres://{}@localhost:5432/recipebox'.format(username)
 

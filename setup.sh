@@ -1,1 +1,0 @@
-DATABASE_URL=postgres://williamfrancis@localhost:5432/recipebox
