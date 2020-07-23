@@ -5,7 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import json
 
-database_path = os.getenv("DATABASE URL")
+# database_path = os.getenv("DATABASE URL")
+database_path = 'postgres://johkyqiaoouyph:8a57bd3636fdbaf156b74e7ca4e2a6f1621fa28be56ab2b64fb87943befa2575@ec2-35-153-12-59.compute-1.amazonaws.com:5432/dbp403t30t6sn8'
 
 
 # database_name = "recipebox"
