@@ -5,7 +5,6 @@ import json
 from flask_cors import CORS, cross_origin
 from models import db_drop_and_create_all, setup_db, Recipe, RecipeCollection
 from auth import AuthError, requires_auth
-from front.index import string as index
 import ast
 
 
@@ -33,11 +32,6 @@ def create_app(test_config=None):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS')
         return response
-
-    @app.route('/')
-    @cross_origin()
-    def index():
-        return index
 
     @app.route('/recipes')
     @cross_origin()
