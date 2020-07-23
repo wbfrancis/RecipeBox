@@ -1,0 +1,14 @@
+.container {
+    margin-top: 60px;
+}
+
+.card-header:hover {
+    background-color: lightgray;
+    cursor: pointer;
+}
+
+a:hover {
+    cursor: pointer;
+    text-decoration: underline !important;
+    color: #c5321d !important;
+}

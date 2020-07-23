@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>RecipeBox</title>
+    <link rel="icon" href="./public/cookfavi.png" />
+    <script
+  src="https://code.jquery.com/jquery-3.5.1.js"
+  integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+  crossorigin="anonymous"></script>
+    <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js'></script>
+    <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js'></script>
+
+    <script src="https://cdn.auth0.com/js/auth0/9.11/auth0.min.js"></script>
+    <script type="text/javascript">
+        var webAuth = new auth0.WebAuth({
+          domain:       'dev-will.auth0.com',
+          clientID:     'x7YM3jmiJVLNLDJSIccy1kw5RKdWC6AH',
+          responseType: 'token',
+          redirectUri: 'https://recipebox-willbfrancis.herokuapp.com/home.html',
+          audience: 'recipebox',
+
+        });
+
+      </script>
+    <script src="./auth.js"></script>
+
+   <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="collection-list.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    
+
+</head>
+<body>
+    <nav class="navbar navbar-light navbar-expand-md navigation-clean-search">
+        <div class="container-fluid">
+            <a href="home.html" class="navbar-brand mr-5">RecipeBox</a>
+            <button class="navbar-toggler" data-target='#navcol-1' data-toggle="collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id='navcol-1' class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="nav-item" role="presentation">
+                        <a href="recipe-list.html" class="nav-link active">Recipes</a>
+                        <a href="collection-list.html" class="nav-link active">Collections</a>
+                        <!-- <a href="" class="btn btn-light shadow-sm action-button mr-3" role="button">Post a Recipe</a> -->
+                    </li>
+                </ul>
+                <form target="_self" class="form-inline mr-auto">
+                    <div class="form-group">
+                        <label for="search-field"></label>
+                    </div>
+                </form>
+                <i class="fa fa-search mr-1 d-none"></i>
+                <input id="search-field" class="search-field mr-5 d-none" type="search" name="search">
+                <div class="dropdown">
+                    <a href="#" class="dropdown-toggle" aria-expanded="false" data-toggle="dropdown">
+                        <i class="fa fa-user"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right account" role="menu">
+                        <h5 class='dropdown-item' id='accountHeader'></h5>
+                        <div class="dropdown-divider"></div>
+                        <button class="btn btn-primary dropdown-item login">Log In</button>
+                        <button class="btn btn-primary dropdown-item logout">Log Out</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col-10">
+                <div id="accordion">
+                </div>
+              <!-- <ul id='list' class='list-group'></ul>    -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        if (localStorage.token){
+            getUser().then(user=>{
+            document.getElementById('accountHeader').innerHTML = "Welcome " + user.nickname + '!'
+            document.getElementsByClassName('login')[0].style.display = 'none'
+        })
+        } else {
+            document.getElementById('accountHeader').innerHTML = "Please Log In"
+            document.getElementsByClassName('logout')[0].style.display = 'none'
+        }
+
+        $('.logout').click(()=>{
+            logout(webAuth)
+        });
+
+
+        $('.login').click(()=>{
+            login(webAuth)
+        });
+
+        function getCollections(){
+            return $.ajax({
+                url: 'http://127.0.0.1:5000/recipe-collections',
+                type: "GET",
+                dataType: 'json',
+                xhrFields: {
+                            withCredentials: true
+                        },
+                crossDomain: true,
+                success: (response) => {
+                    return response
+                },
+                error: (error) => {
+                    alert('Unable to load recipe collections. Please refresh page')
+                    console.log(error)
+                    return;
+                }
+            })
+        }
+
+        getCollections().then((response)=>{
+            response.recipe_collections.forEach(collection=>{
+                let card = document.createElement('div')
+                card.className = 'card'
+                document.getElementById('accordion').appendChild(card)
+
+                let cardHeader = document.createElement('div')
+                cardHeader.className = 'card-header collapsed'
+                cardHeader.id = 'heading'+collection.id
+                cardHeader.setAttribute('data-toggle', 'collapse')
+                cardHeader.setAttribute('data-target', '#collapse'+collection.id)
+                cardHeader.setAttribute('aria-expanded', 'false')
+                cardHeader.setAttribute('aria-controls', 'collapse'+collection.id)
+                card.appendChild(cardHeader)
+
+                let h5 = document.createElement('h5')
+                h5.className = 'mb-0'
+                h5.innerHTML = collection.title
+                cardHeader.appendChild(h5)
+
+                let hr = document.createElement('hr')
+                hr.style.marginTop = '5px'
+                hr.style.marginBottom = '5px'
+                cardHeader.appendChild(hr)
+
+                let small = document.createElement('small')
+                small.innerHTML = "<em>" + collection.description + "</em>"
+                small.style.display = 'inline'
+                small.style.lineHeight = 'normal'
+                cardHeader.appendChild(small)
+
+                let collapse = document.createElement('div')
+                collapse.id = 'collapse'+collection.id
+                collapse.className = 'collapse'
+                collapse.setAttribute('aria-labelledby', 'heading'+collection.id)
+                collapse.setAttribute('data-parent', '#accordion')
+                card.appendChild(collapse)
+
+                let body = document.createElement('div')
+                body.className = 'card-body'
+                console.log(collection)
+                collapse.appendChild(body)
+
+                let ul = document.createElement('ul')
+                body.appendChild(ul)
+
+                collection.recipes.forEach((recipe)=>{
+                    let li = document.createElement('li')
+                    let a = document.createElement('a')
+                    a.style.display = 'block'
+                    a.innerHTML = recipe.title
+                    a.onclick = ()=>{goToRecipe(recipe.id)}
+                    li.appendChild(a)
+                    ul.appendChild(li)
+                })
+            })
+        })
+
+
+
+        function goToRecipe(id){
+            window.location.href = 'recipe.html?id='+id
+        }
+
+    </script>
+</body>
+</html>
