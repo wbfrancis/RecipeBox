@@ -20,7 +20,7 @@ function logout(webAuth){
     localStorage.clear()
     console.log(localStorage)
     webAuth.logout({
-        returnTo: 'http://127.0.0.1:5500/frontend/index.html',
+        returnTo: 'https://recipebox-willbfrancis.herokuapp.com/home.html',
         client_id: 'x7YM3jmiJVLNLDJSIccy1kw5RKdWC6AH'
     });
 }

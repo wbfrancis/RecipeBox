@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>RecipeBox</title>
+    <title>RecipeBox | New Recipe</title>
     <link rel="icon" href="./public/cookfavi.png" />
     <script
   src="https://code.jquery.com/jquery-3.5.1.js"
@@ -11,14 +11,15 @@
   crossorigin="anonymous"></script>
     <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js'></script>
     <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js'></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
+    
     <script src="https://cdn.auth0.com/js/auth0/9.11/auth0.min.js"></script>
     <script type="text/javascript">
         var webAuth = new auth0.WebAuth({
           domain:       'dev-will.auth0.com',
           clientID:     'x7YM3jmiJVLNLDJSIccy1kw5RKdWC6AH',
           responseType: 'token',
-          redirectUri: 'http://127.0.0.1:5500/frontend/index.html',
+          redirectUri: 'https://recipebox-willbfrancis.herokuapp.com/home.html',
           audience: 'recipebox',
 
         });
@@ -28,7 +29,6 @@
 
    <link rel="stylesheet" href="navbar.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="recipe-list.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     
@@ -37,7 +37,7 @@
 <body>
     <nav class="navbar navbar-light navbar-expand-md navigation-clean-search">
         <div class="container-fluid">
-            <a href="index.html" class="navbar-brand mr-5">RecipeBox</a>
+            <a href="home.html" class="navbar-brand mr-5">RecipeBox</a>
             <button class="navbar-toggler" data-target='#navcol-1' data-toggle="collapse">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="navbar-toggler-icon"></span>
@@ -62,7 +62,7 @@
                         <i class="fa fa-user"></i>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right account" role="menu">
-                        <h5 class='dropdown-item' id='accountHeader'></h5>
+                        <h5 class='dropdown-item' id='accountHeader'>Please Log In</h5>
                         <div class="dropdown-divider"></div>
                         <button class="btn btn-primary dropdown-item login">Log In</button>
                         <button class="btn btn-primary dropdown-item logout">Log Out</button>
@@ -71,14 +71,36 @@
             </div>
         </div>
     </nav>
-    <div class="container">
+    <div class="container mt-5">
         <div class="row">
-            <div class="col-3"></div>
-            <div class="col-6">
-              <ul id='list' class='list-group'>
-              </ul>   
+            <div class="col-lg-2">
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                
+                <div class="card-body">
+                    <h3 style='text-align: center;' class="card-title">New Recipe Collection</h3>
+                    <form id='collectionForm' class='needs-validation'>
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input required type="text" class="form-control" name="title" id="title" placeholder="Make it catchy!">
+                          </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea required class="form-control" name="description" id="description" rows="3" placeholder="A brief description for the collection"></textarea>
+                          </div>
+                          <div class="form-group">
+                            <label for="recipes">Select recipes for collection</label>
+                            <select required class="custom-select mb-3" multiple name='recipes' id='recipes'>
+                            </select>
+                          </div>
+                          <button type="submit" class="btn btn-primary mb-2">Submit</button>
+                    </form>
+                </div>
             </div>
         </div>
+        </div>
+        
     </div>
     
     <script>
@@ -95,7 +117,7 @@
                     return response
                 },
                 error: (error) => {
-                    alert('Unable to load recipe collections. Please refresh page')
+                    alert('Unable to load recipes. Please refresh page')
                     console.log(error)
                     return;
                 }
@@ -103,19 +125,14 @@
         }
 
         getRecipes().then((response)=>{
-            ul = document.getElementById('list')
-            response.recipes.forEach((recipe)=>{
-                let li = document.createElement('li')
-                li.className = 'list-group-item'
-                li.innerHTML = recipe.title
-                li.onclick = ()=>{goToRecipe(recipe.id)}
-                ul.appendChild(li)
+            let select = document.getElementById('recipes')
+            response.recipes.forEach(recipe=>{
+                let option = document.createElement('option')
+                option.value = recipe.id
+                option.innerHTML = recipe.title
+                select.appendChild(option)
             })
         })
-
-        function goToRecipe(id){
-            window.location.href = 'recipe.html?id='+id
-        }
 
         if (localStorage.token){
             getUser().then(user=>{
@@ -136,6 +153,63 @@
             login(webAuth)
         });
 
+        $(document).ready(function(){
+            $('option').mousedown(function(e) {
+                e.preventDefault();
+                $(this).prop('selected', !$(this).prop('selected'));
+                return false;
+            });
+            
+            $(document).on("keydown", ":input:not(textarea)", function(event) {
+                return event.key != "Enter";
+            }); 
+
+            $("#collectionForm").submit(event=>{
+                event.preventDefault();
+                let data = {}
+                let ids = []
+                $( "#collectionForm" ).serializeArray().forEach(e=>{
+                    console.log(e)
+                    if (e.name === 'recipes'){
+                        ids.push(e.value)
+                    } else {
+                        data[e.name] = e.value
+                    }
+                })
+                data['recipes'] = ids.join()
+                let token = "Bearer " + localStorage.token
+                let result = $.ajax({
+                    url: 'http://127.0.0.1:5000/recipe-collections', //TODO: update request URL
+                    type: "POST",
+                    dataType: 'json',
+                    contentType: 'text/plain',
+                    data: JSON.stringify(data),
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    headers: {
+                    'Authorization': token
+                    },
+                    crossDomain: true,
+                    success: (result) => {
+                        alert('New Recipe Collection successfully added!')
+                        document.getElementById("collectionForm").reset();
+                        return;
+                    },
+                    error: (error) => {
+                        if (error.status == 401){
+                            alert('Only admin users can create recipe collections')
+                        } else {
+                            alert('Unable to submit recipe collection. Please try again')
+
+                        }
+                        return;
+                    }
+                })
+                // console.log('here\'s: ', result)
+            });
+        });
+        
     </script>
 </body>
 </html>
