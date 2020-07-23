@@ -1,8 +1,0 @@
-.container li:hover {
-    cursor: pointer;
-    background-color: lightgray;
-}
-
-.container {
-    margin-top: 60px;
-}
