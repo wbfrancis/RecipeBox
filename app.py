@@ -5,6 +5,7 @@ import json
 from flask_cors import CORS, cross_origin
 from models import db_drop_and_create_all, setup_db, Recipe, RecipeCollection
 from auth import AuthError, requires_auth
+from front import index
 import ast
 
 
@@ -36,7 +37,7 @@ def create_app(test_config=None):
     @app.route('/')
     @cross_origin()
     def index():
-        return render_template('index.html') 
+        return index.string
 
     @app.route('/recipes')
     @cross_origin()
