@@ -35,7 +35,7 @@ def create_app(test_config=None):
 
     @app.route('/')
     def index():
-        return render_template('home.html')
+        return redirect(url_for('home.html'))
 
 
     @app.route('/recipes')
