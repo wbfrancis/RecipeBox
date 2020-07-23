@@ -38,7 +38,7 @@ def create_app(test_config=None):
         return redirect(url_for('static',filename='home.html'))
 
 
-    @app.route('https://recipebox-willbfrancis.herokuapp.com/recipes')
+    @app.route('/recipes')
     @cross_origin()
     def get_all_recipes():
         try:
@@ -142,7 +142,7 @@ def create_app(test_config=None):
     # ENDPOINTS FOR RECIPE COLLECTIONS
     # ################################
 
-    @app.route('https://recipebox-willbfrancis.herokuapp.com/recipe-collections')
+    @app.route('/recipe-collections')
     @cross_origin()
     def get_all_recipe_collections():
         try:
