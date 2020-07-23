@@ -109,7 +109,6 @@
                 event.preventDefault();
                 let data = {}
                 $( "#recipeForm" ).serializeArray().forEach(e=>{
-                    console.log(e)
                     data[e.name] = e.value
                 })
 
@@ -137,7 +136,7 @@
                         return;
                     },
                     error: (error) => {
-                        console.log(error)
+                        console.log('error', error)
                         alert('Unable to submit recipe. Please try again')
                         return;
                     }
