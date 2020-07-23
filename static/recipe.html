@@ -202,7 +202,7 @@
         function deleteRecipe(id){
             let token = "Bearer " + localStorage.token
             let result = $.ajax({
-            url: 'http://127.0.0.1:5000/recipes/'+id, //TODO: update request URL
+            url: '/recipes/'+id, //TODO: update request URL
             type: "DELETE",
             dataType: 'json',
             // contentType: 'text/plain',
@@ -238,7 +238,7 @@
                 if (localStorage.token){
                     let token = "Bearer " + localStorage.token
                     let result = $.ajax({
-                    url: 'http://127.0.0.1:5000/recipes/'+r.id, //TODO: update request URL
+                    url: '/recipes/'+r.id, //TODO: update request URL
                     type: "PATCH",
                     dataType: 'json',
                     contentType: 'text/plain',
@@ -274,7 +274,7 @@
 
         function getRecipe(id) {
             return $.ajax({
-                url: 'http://127.0.0.1:5000/recipes/'+id,
+                url: '/recipes/'+id,
                 type: "GET",
                 dataType: 'json',
                 xhrFields: {

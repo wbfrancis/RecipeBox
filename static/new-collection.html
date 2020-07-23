@@ -106,7 +106,7 @@
     <script>
         function getRecipes(){
             return $.ajax({
-                url: 'http://127.0.0.1:5000/recipes',
+                url: '/recipes',
                 type: "GET",
                 dataType: 'json',
                 xhrFields: {
@@ -179,7 +179,7 @@
                 data['recipes'] = ids.join()
                 let token = "Bearer " + localStorage.token
                 let result = $.ajax({
-                    url: 'http://127.0.0.1:5000/recipe-collections', //TODO: update request URL
+                    url: '/recipe-collections', //TODO: update request URL
                     type: "POST",
                     dataType: 'json',
                     contentType: 'text/plain',

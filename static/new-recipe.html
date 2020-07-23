@@ -116,7 +116,7 @@
                 if (localStorage.token){
                     let token = "Bearer " + localStorage.token
                     let result = $.ajax({
-                    url: 'http://127.0.0.1:5000/recipes', //TODO: update request URL
+                    url: '/recipes', //TODO: update request URL
                     type: "POST",
                     dataType: 'json',
                     contentType: 'text/plain',
