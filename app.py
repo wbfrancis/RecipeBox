@@ -16,7 +16,7 @@ username = 'williamfrancis'
 database_path = 'postgres://johkyqiaoouyph:8a57bd3636fdbaf156b74e7ca4e2a6f1621fa28be56ab2b64fb87943befa2575@ec2-35-153-12-59.compute-1.amazonaws.com:5432/dbp403t30t6sn8'
 
 def create_app(test_config=None):
-    app = Flask(__name__, template_folder='./frontend')
+    app = Flask(__name__, template_folder='./')
     setup_db(app, database_path)
     cors = CORS(app, resources={r"/*": {"origins": "*"}})
     app.config['CORS_HEADERS'] = 'Content-Type'
@@ -32,6 +32,11 @@ def create_app(test_config=None):
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS')
         return response
+
+    @app.route('/')
+    def index():
+        return render_template('home.html')
+
 
     @app.route('/recipes')
     @cross_origin()
